@@ -1,0 +1,19 @@
+services:
+  intelliwhats:
+    build: ./Intelliwhats
+    container_name: intelliwhats
+    volumes:
+      - ./data:/data
+    environment:
+      # Configuração do WhatsApp
+      - PHONE_NUMBER=${PHONE_NUMBER}
+      - OWNER_JID=${OWNER_JID}
+      - TZ=${TZ}
+      
+      # API Keys
+      - GROK_API_KEY=${GROK_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      
+      # Configuração do Bot
+      - DB_PATH=/data/whatsmeow.db
+    restart: unless-stopped

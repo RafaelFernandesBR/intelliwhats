@@ -1,0 +1,22 @@
+# Arquivos de ambiente (NÃO copiar para imagem Docker)
+.env
+.env.local
+.env.*.local
+
+# Binários locais
+*.exe
+intelliwhats.exe
+
+# Arquivos de desenvolvimento
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentação (opcional - remover se quiser docs na imagem)
+*.md
+
+# Logs
+*.log

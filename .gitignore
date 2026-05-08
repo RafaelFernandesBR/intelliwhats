@@ -1,0 +1,49 @@
+# Binários compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+intelliwhats.exe
+
+# Dados de teste
+*.test
+
+# Saída de build Go
+*.out
+
+# Dependências do módulo Go
+vendor/
+
+# Diretórios de sessão/login do WhatsApp
+login/
+.wwebjs_cache/
+session/
+
+# Arquivos temporários
+temp/
+*.tmp
+
+# Banco de dados
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Variáveis de ambiente (IMPORTANTE: não commitar chaves de API!)
+.env
+.env.local
+.env.*.local

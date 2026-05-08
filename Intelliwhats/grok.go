@@ -15,11 +15,11 @@ func processImageWithGrok(imageData []byte) (string, error) {
 	// Converter para base64
 	base64Image := base64.StdEncoding.EncodeToString(imageData)
 
-	// Preparar prompt
-	prompt := buildImageDescriptionPrompt()
+	// Idioma parametrizado
+	language := "pt-BR"
 
 	// Criar requisição
-	requestBody := buildGrokRequest(base64Image, prompt)
+	requestBody := buildGrokRequest(base64Image, GetImageDescriptionPrompt(language))
 
 	// Enviar para API
 	response, err := sendGrokRequest(requestBody)
@@ -34,20 +34,6 @@ func processImageWithGrok(imageData []byte) (string, error) {
 	}
 
 	return description, nil
-}
-
-func buildImageDescriptionPrompt() string {
-	return `Describe the image objectively in pt-BR, providing a clear overview of visible elements for visually impaired users. Follow these rules strictly:
-
-- Start with general scene (who/what/where).
-- Highlight main action and key elements.
-- Transcribe all visible text verbatim.
-- Use present tense and active verbs.
-- Focus on relevant visual information only.
-- No introductions, opinions, 'image of', emojis, or redundant phrases.
-- Answer only in pt-BR, pure description.
-
-Describe following this exact structure.`
 }
 
 func buildGrokRequest(base64Image, promptText string) models.GrokRequest {

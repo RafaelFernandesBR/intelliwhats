@@ -186,12 +186,15 @@ func requestGeminiTranscription(fileURI, mimetype string) (string, error) {
 
 // buildTranscriptionRequest monta o corpo da requisição de transcrição
 func buildTranscriptionRequest(fileURI, mimetype string) models.GeminiTranscriptionRequest {
+	// Idioma parametrizado
+	language := "pt-BR"
+
 	return models.GeminiTranscriptionRequest{
 		Contents: []models.GeminiContent{
 			{
 				Parts: []models.GeminiPart{
 					{
-						Text: getTranscriptionPrompt(),
+						Text: GetAudioTranscriptionPrompt(language),
 					},
 					{
 						FileData: &models.GeminiFileData{
@@ -203,21 +206,6 @@ func buildTranscriptionRequest(fileURI, mimetype string) models.GeminiTranscript
 			},
 		},
 	}
-}
-
-// getTranscriptionPrompt retorna o prompt de transcrição
-func getTranscriptionPrompt() string {
-	return `Transcreva o áudio em português brasileiro de forma natural e fluida. 
-                        
-Regras importantes:
-- Remova hesitações, repetições desnecessárias e vícios de linguagem (eh, hnn, é, tipo, né quando usado apenas como vícios)
-- Corrija erros de fala mantendo o significado original
-- Organize o texto de forma clara e coesa
-- Preserve o conteúdo e a intenção do que foi dito
-- NÃO inclua timestamps, minutagem ou marcações de tempo
-- Retorne apenas o texto transcrito de forma natural
-
-Forneça uma transcrição limpa e legível, como se fosse um texto escrito.`
 }
 
 // extractTranscriptionText extrai o texto da transcrição da resposta

@@ -12,7 +12,7 @@ intelliwhats.exe
 .gitignore
 .vscode/
 .idea/
-*.swp
+*.swp📖 Documentação
 *.swo
 
 # Documentação (opcional - remover se quiser docs na imagem)

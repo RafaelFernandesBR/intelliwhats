@@ -1,324 +1,127 @@
-# WhatsApp Go Bridge Bot
+# IntelliWhats 🤖
 
-Bot WhatsApp escrito em Go que processa automaticamente imagens, figurinhas e áudios via IA.
+Assistente inteligente para WhatsApp que entende o que você envia - sejam imagens, áudios ou figurinhas - e responde automaticamente com informações úteis.
 
-## 📁 Estrutura do Projeto
+## 💡 O que ele faz?
 
-```
-whatsappGo/
-├── .env                     # ⚠️ Configurações sensíveis (não commitado)
-├── .env.example             # Template para configuração
-├── .gitignore               # Proteção de arquivos sensíveis
-├── docker-compose.yml       # Configuração Docker Compose
-├── docker-manage.bat        # Script helper Windows
-├── docker-manage.sh         # Script helper Linux/Mac
-├── data/                    # Volume Docker (sessão persistente)
-└── whatsapp-bridge/         # Código fonte Go
-    ├── *.go                # Código modularizado
-    ├── Dockerfile          # Imagem Docker
-    ├── .dockerignore       # Arquivos ignorados no build
-    ├── README.md           # Documentação de uso
-    ├── ARCHITECTURE.md     # Arquitetura do código
-    ├── DOCKER.md           # Guia completo Docker
-    └── SECURITY.md         # Guia de segurança
-```
+O IntelliWhats é um bot que adiciona inteligência artificial ao seu WhatsApp:
 
-## 🚀 Início Rápido
+- **📸 Descreve imagens**: Envie qualquer foto e receba uma descrição detalhada do que está nela
+- **🎭 Explica figurinhas**: Não entendeu uma figurinha? O bot explica o conteúdo dela
+- **🎤 Transcreve áudios**: Envie um áudio e receba o texto do que foi falado, já formatado e limpo
 
-### Opção 1: Docker (Recomendado)
+Perfeito para acessibilidade, produtividade ou simplesmente para facilitar sua vida no WhatsApp!
 
-**Pré-requisitos:**
-- Docker e Docker Compose instalados
+## 🚀 Como usar?
 
-**Passos:**
+### Passo 1: Configurar suas chaves de API
 
-```bash
-# 1. Configurar .env
-cp .env.example .env
-nano .env  # Edite com suas API keys
+Você vai precisar criar contas (gratuitas) em dois serviços de IA:
 
-# 2. Usar script helper
-# Windows:
-docker-manage.bat start
+**Grok (da X.AI)**
+- Acesse: https://console.x.ai/
+- Crie sua conta e gere uma chave de API
+- Guarde essa chave, você vai precisar dela
 
-# Linux/Mac:
-chmod +x docker-manage.sh
-./docker-manage.sh start
+**Gemini (do Google)**
+- Acesse: https://aistudio.google.com/apikey
+- Entre com sua conta Google
+- Clique em "Create API Key" e copie a chave
 
-# 3. Ver logs e código de pareamento
-docker-manage.bat logs       # Windows
-./docker-manage.sh logs      # Linux/Mac
-```
+### Passo 2: Criar arquivo de configuração
 
-**Comandos disponíveis:**
-```bash
-build      # Build da imagem Docker
-start      # Iniciar o bot
-stop       # Parar o bot
-restart    # Reiniciar o bot
-logs       # Ver logs em tempo real
-status     # Ver status do container
-shell      # Abrir shell no container
-reset      # Reset completo (deleta sessão)
-backup     # Backup da sessão
-restore    # Restaurar backup
-clean      # Limpar tudo
-```
-
-### Opção 2: Executável Local
-
-**Pré-requisitos:**
-- Go 1.25+ instalado
-- GCC (para CGo/SQLite)
-
-**Passos:**
-
-```bash
-cd whatsapp-bridge
-
-# 1. Compilar
-go build -o whatsapp-bot.exe .
-
-# 2. Executar
-# Windows:
-run.bat
-
-# Linux/Mac:
-chmod +x run.sh
-./run.sh
-```
-
-## ⚙️ Configuração
-
-### Variáveis de Ambiente (.env)
-
-**⚠️ Obrigatórias:**
+Crie um arquivo chamado `.env` na pasta do projeto com o seguinte conteúdo:
 
 ```env
-# API Keys (sempre obrigatórias)
-GROK_API_KEY=xai-xxxxxxxxxxxxxxx        # Obter em: https://console.x.ai/
-GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxx    # Obter em: https://aistudio.google.com/apikey
+# Suas chaves de API
+GROK_API_KEY=sua-chave-do-grok-aqui
+GEMINI_API_KEY=sua-chave-do-gemini-aqui
 
-# WhatsApp (apenas primeiro login)
-PHONE_NUMBER=5511999999999              # Seu número com código do país
+# Seu número de WhatsApp (com código do país, sem espaços)
+PHONE_NUMBER=5511999999999
 ```
 
-**📝 Opcionais:**
+### Passo 3: Iniciar o bot
 
-```env
-OWNER_JID=5511999999999@s.whatsapp.net  # JID do proprietário
-TZ=America/Sao_Paulo                    # Fuso horário
-DB_PATH=/data/whatsmeow.db              # Caminho do banco (Docker)
-```
-
-### Obter API Keys
-
-**Grok API (X.AI):**
-1. Acesse: https://console.x.ai/
-2. Crie uma conta
-3. Vá em "API Keys"
-4. Crie uma nova chave
-5. Copie para `GROK_API_KEY` no `.env`
-
-**Gemini API (Google):**
-1. Acesse: https://aistudio.google.com/apikey
-2. Faça login com Google
-3. Clique em "Create API Key"
-4. Copie para `GEMINI_API_KEY` no `.env`
-
-## 🤖 Funcionalidades
-
-### 🖼️ Descrição de Imagens
-- Envia uma imagem → Recebe descrição detalhada em português
-- Usa **Grok API** (modelo `grok-4-0709`)
-- Ideal para usuários com deficiência visual
-
-### � Descrição de Figurinhas (Stickers)
-- Envia uma figurinha → Recebe descrição do conteúdo
-- Usa **Grok API** (mesma tecnologia das imagens)
-- Funciona com qualquer tipo de sticker
-
-### �🎤 Transcrição de Áudios
-- Envia um áudio → Recebe transcrição limpa em português
-- Usa **Gemini API** (modelo `gemini-2.5-flash`)
-- Remove hesitações e vícios de linguagem
-
-### 💬 Comandos
-- `!ping` → Responde "pong" (teste de conectividade)
-
-## 📖 Documentação
-
-- **[README.md](whatsapp-bridge/README.md)** - Guia de uso e configuração
-- **[ARCHITECTURE.md](whatsapp-bridge/ARCHITECTURE.md)** - Arquitetura do código
-- **[DOCKER.md](whatsapp-bridge/DOCKER.md)** - Guia completo Docker
-- **[SECURITY.md](whatsapp-bridge/SECURITY.md)** - Segurança de API keys
-- **[REFACTORING.md](whatsapp-bridge/REFACTORING.md)** - Documentação da refatoração
-- **[ENV_MIGRATION.md](whatsapp-bridge/ENV_MIGRATION.md)** - Migração para variáveis de ambiente
-
-## 🔐 Segurança
-
-### ⚠️ IMPORTANTE
-
-1. **Nunca commite .env para Git**
-   - Já está no `.gitignore`
-   - Contém credenciais sensíveis
-
-2. **Use .env.example como referência**
-   - Template sem credenciais reais
-   - Safe para commit
-
-3. **Rotacione chaves periodicamente**
-   - Especialmente se suspeitar de exposição
-
-4. **Docker: .dockerignore protege .env**
-   - Arquivo não é copiado para imagem
-   - Variáveis vêm do docker-compose
-
-### Checklist de Segurança
-
-- [ ] `.env` está no `.gitignore` ✅
-- [ ] `.env.example` não tem chaves reais ✅
-- [ ] API keys em variáveis de ambiente ✅
-- [ ] `.dockerignore` protege arquivos sensíveis ✅
-- [ ] Scripts validam presença de chaves ✅
-
-## 🐛 Troubleshooting
-
-### Erro: "GROK_API_KEY não definida"
-
-**Causa:** Arquivo `.env` não foi criado ou está vazio.
-
-**Solução:**
+**No Windows:**
 ```bash
-# Copiar exemplo
-cp .env.example .env
-
-# Editar e adicionar suas chaves
-nano .env
-
-# Reiniciar
-docker-manage.bat restart  # ou ./docker-manage.sh restart
-```
-
-### Bot não conecta no primeiro uso
-
-**Causa:** `PHONE_NUMBER` não configurado ou código de pareamento expirado.
-
-**Solução:**
-```bash
-# 1. Verificar .env
-cat .env | grep PHONE_NUMBER
-
-# 2. Ver logs para código de pareamento
-docker-manage.bat logs  # ou ./docker-manage.sh logs
-
-# 3. Digitar código rapidamente no WhatsApp:
-#    Configurações → Aparelhos conectados → Conectar com número
-```
-
-### Reset da sessão (novo pareamento)
-
-```bash
-# Docker
-docker-manage.bat reset  # ou ./docker-manage.sh reset
-
-# Local
-rm -rf whatsapp-bridge/login/
-```
-
-## 🔄 Comparação: Docker vs Local
-
-| Aspecto | Docker | Local |
-|---------|--------|-------|
-| **Configuração** | Mais fácil | Mais complexa |
-| **Dependências** | Isoladas | Precisa instalar |
-| **Portabilidade** | ✅ Alta | ⚠️ Depende do SO |
-| **Atualização** | `docker-compose build` | `go build` |
-| **Logs** | `docker-compose logs` | Terminal direto |
-| **Backup** | Script helper | Manual |
-| **Produção** | ✅ Recomendado | ⚠️ Ok para dev |
-
-## 📦 Dependências Go
-
-```go
-go.mau.fi/whatsmeow          // Cliente WhatsApp
-github.com/mattn/go-sqlite3  // Banco de dados SQLite
-google.golang.org/protobuf   // Protocol Buffers
-```
-
-## 🏗️ Arquitetura
-
-### Modularização (7 arquivos Go)
-
-```
-whatsapp-bridge/
-├── main.go        # Entry point e orquestração
-├── config.go      # Configurações e constantes
-├── auth.go        # Autenticação WhatsApp
-├── handlers.go    # Handlers de eventos
-├── grok.go        # Integração Grok API
-├── gemini.go      # Integração Gemini API
-└── utils.go       # Funções utilitárias
-```
-
-**Benefícios:**
-- ✅ Separação de responsabilidades
-- ✅ Fácil manutenção
-- ✅ Testabilidade melhorada
-- ✅ Código limpo e legível
-
-## 🚢 Deploy em Produção
-
-### Docker Compose (Recomendado)
-
-```bash
-# 1. Servidor
-git clone <repo> /opt/whatsapp-bot
-cd /opt/whatsapp-bot
-
-# 2. Configurar .env
-cp .env.example .env
-nano .env
-
-# 3. Deploy
 docker-compose up -d
-
-# 4. Monitorar
 docker-compose logs -f
 ```
 
-### Backup Automatizado
+**No primeiro uso:**
+- O bot vai mostrar um código de pareamento no terminal
+- Abra o WhatsApp no celular → Aparelhos conectados → Conectar um aparelho
+- Escolha "Conectar com número de telefone"
+- Digite o código que apareceu no terminal
+- Pronto! O bot está conectado
 
+## 🎯 Como funciona na prática?
+
+Uma vez conectado, é só usar normalmente:
+
+1. **Para imagens**: Envie qualquer foto para o bot e ele responderá descrevendo o que vê
+2. **Para áudios**: Envie um áudio e receba a transcrição em texto
+3. **Para figurinhas**: Envie uma figurinha e ele explicará o conteúdo
+
+Simples assim! Sem comandos complicados.
+
+### Comandos disponíveis
+
+- **!ping** - Verifica se o bot está ativo (ele responde "pong")
+- **!api** - Mostra qual IA está sendo usada para processar imagens e figurinhas
+- **!api 1** - Muda para usar Grok (padrão)
+- **!api 2** - Muda para usar Gemini
+
+> 💡 **Dica:** Você pode escolher qual IA prefere usar para processar suas imagens! Teste ambas e veja qual funciona melhor para você.
+
+## 🔧 Comandos úteis
+
+**Ver o que está acontecendo:**
 ```bash
-# Backup diário via cron
-0 3 * * * /opt/whatsapp-bot/docker-manage.sh backup
+docker-compose logs -f
 ```
 
-## 📊 Status do Projeto
+**Parar o bot:**
+```bash
+docker-compose down
+```
 
-- ✅ Autenticação por código (sem QR)
-- ✅ Processamento de imagens (Grok)
-- ✅ Processamento de figurinhas/stickers (Grok)
-- ✅ Transcrição de áudios (Gemini)
-- ✅ Comando !ping
-- ✅ API keys em variáveis de ambiente
-- ✅ Código refatorado e modular
-- ✅ Documentação completa
-- ✅ Docker pronto para produção
-- ✅ Scripts helper (Windows/Linux/Mac)
-- ✅ Sistema de backup
+**Reiniciar o bot:**
+```bash
+docker-compose restart
+```
 
-## 📝 Licença
+**Desconectar e reconectar (gerar novo código):**
+```bash
+docker-compose down
+# Apague a pasta 'data'
+docker-compose up -d
+docker-compose logs -f
+```
 
-Projeto educacional demonstrando integração WhatsApp + IA.
+## ❓ Perguntas frequentes
 
-## 🤝 Suporte
+**O bot não está respondendo?**
+- Verifique se o container está rodando: `docker-compose ps`
+- Veja os logs para identificar erros: `docker-compose logs -f`
+- Certifique-se de que suas chaves de API estão corretas no arquivo `.env`
 
-Para problemas ou dúvidas:
-1. Consulte [DOCKER.md](whatsapp-bridge/DOCKER.md) para troubleshooting Docker
-2. Consulte [SECURITY.md](whatsapp-bridge/SECURITY.md) para questões de segurança
-3. Veja [ARCHITECTURE.md](whatsapp-bridge/ARCHITECTURE.md) para entender o código
+**Preciso pagar para usar?**
+- O bot em si é gratuito
+- As APIs (Grok e Gemini) têm planos gratuitos, mas podem ter limites de uso
+- Consulte os sites das APIs para mais informações sobre limites
 
----
+**Posso usar em grupos?**
+- Sim! Adicione o número do bot em qualquer grupo e ele responderá a todas as mensagens com mídia
 
-**Bot pronto para uso!** 🚀🤖
+**Os dados são privados?**
+- As imagens e áudios são enviados para as APIs (Grok e Gemini) para processamento
+- Nenhum dado é armazenado permanentemente pelo bot
+- Consulte as políticas de privacidade da X.AI e Google para mais informações
+
+## 🛠️ Requisitos técnicos
+
+Para rodar o projeto, você precisa ter instalado:
+- Docker e Docker Compose
+- Conexão com internet (o bot precisa acessar as APIs)

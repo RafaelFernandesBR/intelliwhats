@@ -97,14 +97,15 @@ func extractGrokDescription(response models.GrokResponse) (string, error) {
 		return "", fmt.Errorf("resposta inválida: sem output")
 	}
 
-	firstOutput := response.Output[0]
-	if len(firstOutput.Content) == 0 {
-		return "", fmt.Errorf("resposta inválida: sem content")
-	}
+	for _, output := range response.Output {
+		if len(output.Content) == 0 {
+			continue
+		}
 
-	for _, item := range firstOutput.Content {
-		if item.Type == "output_text" && item.Text != "" {
-			return item.Text, nil
+		for _, item := range output.Content {
+			if item.Type == "output_text" && item.Text != "" {
+				return item.Text, nil
+			}
 		}
 	}
 

@@ -13,7 +13,7 @@ import (
 
 const (
 	GROK_API_URL      = "https://api.x.ai/v1/responses"
-	GROK_MODEL        = "grok-4-0709"
+	GROK_MODEL        = "grok-4-1-fast-reasoning"
 	GEMINI_MODEL      = "gemini-2.5-flash"
 	GEMINI_UPLOAD_URL = "https://generativelanguage.googleapis.com/upload/v1beta/files"
 

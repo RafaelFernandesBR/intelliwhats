@@ -188,14 +188,18 @@ func requestGeminiTranscription(fileURI, mimetype string) (string, error) {
 func buildTranscriptionRequest(fileURI, mimetype string) models.GeminiTranscriptionRequest {
 	// Idioma parametrizado
 	language := "pt-BR"
-
+	
 	return models.GeminiTranscriptionRequest{
+		SystemInstruction: &models.GeminiSystemInstruction{
+			Parts: []models.GeminiPart{
+				{
+					Text: GetAudioTranscriptionPrompt(language),
+				},
+			},
+		},
 		Contents: []models.GeminiContent{
 			{
 				Parts: []models.GeminiPart{
-					{
-						Text: GetAudioTranscriptionPrompt(language),
-					},
 					{
 						FileData: &models.GeminiFileData{
 							MimeType: mimetype,

@@ -24,9 +24,15 @@ type GeminiFile struct {
 	URI         string `json:"uri"`
 }
 
+// GeminiSystemInstruction contém a instrução do sistema
+type GeminiSystemInstruction struct {
+	Parts []GeminiPart `json:"parts"`
+}
+
 // GeminiTranscriptionRequest representa a requisição de transcrição
 type GeminiTranscriptionRequest struct {
-	Contents []GeminiContent `json:"contents"`
+	SystemInstruction *GeminiSystemInstruction `json:"system_instruction,omitempty"`
+	Contents          []GeminiContent         `json:"contents"`
 }
 
 // GeminiContent representa o conteúdo da requisição
@@ -68,7 +74,8 @@ type GeminiResponsePart struct {
 
 // GeminiImageRequest representa a requisição de descrição de imagem
 type GeminiImageRequest struct {
-	Contents []GeminiImageContent `json:"contents"`
+	SystemInstruction *GeminiSystemInstruction `json:"system_instruction,omitempty"`
+	Contents          []GeminiImageContent    `json:"contents"`
 }
 
 // GeminiImageContent representa o conteúdo da requisição de imagem

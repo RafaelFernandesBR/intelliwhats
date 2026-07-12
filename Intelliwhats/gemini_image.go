@@ -40,6 +40,13 @@ func processImageWithGemini(imageData []byte) (string, error) {
 // buildGeminiImageRequest monta o corpo da requisição de descrição de imagem
 func buildGeminiImageRequest(base64Image, promptText string) models.GeminiImageRequest {
 	return models.GeminiImageRequest{
+		SystemInstruction: &models.GeminiSystemInstruction{
+			Parts: []models.GeminiPart{
+				{
+					Text: promptText,
+				},
+			},
+		},
 		Contents: []models.GeminiImageContent{
 			{
 				Role: "user",
@@ -49,9 +56,6 @@ func buildGeminiImageRequest(base64Image, promptText string) models.GeminiImageR
 							MimeType: "image/png",
 							Data:     base64Image,
 						},
-					},
-					{
-						Text: promptText,
 					},
 				},
 			},

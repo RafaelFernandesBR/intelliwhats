@@ -58,7 +58,7 @@ func saveAudioToTempFile(audioData []byte, mimetype string) (string, error) {
 // uploadAudioToGemini faz upload do áudio para a Gemini API
 func uploadAudioToGemini(audioData []byte, mimetype string) (string, error) {
 	// Inicializar upload resumable
-	uploadURL, err := initializeGeminiUpload(len(audioData), mimetype)
+	uploadURL, err := initializeGeminiUpload(len(audioData), mimetype, fmt.Sprintf("audio-%d", time.Now().Unix()))
 	if err != nil {
 		return "", fmt.Errorf("inicializar upload: %v", err)
 	}
@@ -66,19 +66,19 @@ func uploadAudioToGemini(audioData []byte, mimetype string) (string, error) {
 	log.Println("Upload URL obtida")
 
 	// Fazer upload do arquivo
-	fileURI, err := uploadFileToGemini(uploadURL, audioData)
+	file, err := uploadFileToGemini(uploadURL, audioData)
 	if err != nil {
 		return "", fmt.Errorf("upload arquivo: %v", err)
 	}
 
-	return fileURI, nil
+	return file.URI, nil
 }
 
 // initializeGeminiUpload inicializa o upload resumable na Gemini API
-func initializeGeminiUpload(fileSize int, mimetype string) (string, error) {
+func initializeGeminiUpload(fileSize int, mimetype, displayName string) (string, error) {
 	requestBody := models.GeminiUploadRequest{
 		File: models.GeminiFileInfo{
-			DisplayName: fmt.Sprintf("audio-%d", time.Now().Unix()),
+			DisplayName: displayName,
 		},
 	}
 
@@ -110,11 +110,12 @@ func initializeGeminiUpload(fileSize int, mimetype string) (string, error) {
 	return uploadURL, nil
 }
 
-// uploadFileToGemini faz o upload do arquivo para a URL obtida
-func uploadFileToGemini(uploadURL string, data []byte) (string, error) {
+// uploadFileToGemini faz o upload do arquivo para a URL obtida e retorna os
+// metadados do arquivo (URI, Name e State), reutilizável por áudio e vídeo.
+func uploadFileToGemini(uploadURL string, data []byte) (models.GeminiFile, error) {
 	req, err := http.NewRequest("POST", uploadURL, bytes.NewBuffer(data))
 	if err != nil {
-		return "", err
+		return models.GeminiFile{}, err
 	}
 
 	req.Header.Set("Content-Length", fmt.Sprintf("%d", len(data)))
@@ -123,25 +124,25 @@ func uploadFileToGemini(uploadURL string, data []byte) (string, error) {
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return "", err
+		return models.GeminiFile{}, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("upload falhou. Status: %d, Body: %s", resp.StatusCode, string(body))
+		return models.GeminiFile{}, fmt.Errorf("upload falhou. Status: %d, Body: %s", resp.StatusCode, string(body))
 	}
 
 	var result models.GeminiUploadResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
+		return models.GeminiFile{}, err
 	}
 
 	if result.File.URI == "" {
-		return "", fmt.Errorf("resposta inválida: URI vazia")
+		return models.GeminiFile{}, fmt.Errorf("resposta inválida: URI vazia")
 	}
 
-	return result.File.URI, nil
+	return result.File, nil
 }
 
 // requestGeminiTranscription solicita a transcrição do áudio

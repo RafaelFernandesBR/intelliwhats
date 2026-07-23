@@ -14,8 +14,12 @@ import (
 const (
 	GROK_API_URL      = "https://api.x.ai/v1/responses"
 	GROK_MODEL        = "grok-4-1-fast-reasoning"
-	GEMINI_MODEL      = "gemini-2.5-flash"
+	GEMINI_MODEL      = "gemini-3.1-flash-lite"
 	GEMINI_UPLOAD_URL = "https://generativelanguage.googleapis.com/upload/v1beta/files"
+
+	// Text-to-Speech (audiodescrição de vídeo)
+	GEMINI_TTS_MODEL = "gemini-2.5-flash-preview-tts"
+	GEMINI_TTS_VOICE = "Kore"
 
 	// Configurações gerais
 	DefaultDBPath  = "./login/whatsmeow.db"
@@ -72,6 +76,35 @@ func GetImageDescriptionPrompt(language string) string {
 - Answer only in ` + language + `, pure description.
 
 Describe following this exact structure.`
+}
+
+// GetVideoAudioDescriptionPrompt retorna o prompt de audiodescrição de vídeo no idioma especificado.
+// Gera um texto de narração único descrevendo a cena visual e o que é falado, pronto para TTS.
+func GetVideoAudioDescriptionPrompt(language string) string {
+	return `Você é um audiodescritor profissional. Assista ao vídeo e produza uma narração em ` + language + ` para pessoas com deficiência visual.
+
+Regras:
+- Descreva objetivamente os elementos visuais principais: quem/o quê/onde, ação principal e mudanças de cena.
+- Integre naturalmente o que é dito no áudio (falas relevantes), sem inventar.
+- Use presente do indicativo e verbos ativos.
+- Transcreva textos visíveis importantes na tela.
+- Sem introduções, opiniões, "vídeo de", emojis ou frases redundantes.
+- Retorne apenas o texto da narração corrida, pronto para ser lido em voz alta em ` + language + `.`
+}
+
+// GetVideoADSegmentsPrompt retorna o prompt de audiodescrição segmentada de vídeo.
+// Pede segmentos curtos posicionados nas pausas do diálogo, com o instante de início.
+func GetVideoADSegmentsPrompt(language string) string {
+	return `Você é um audiodescritor profissional. Assista ao vídeo e produza uma audiodescrição em ` + language + ` para pessoas com deficiência visual, dividida em segmentos curtos.
+
+Regras:
+- Cada segmento deve ser MUITO BREVE: uma única frase curta, no máximo ~12 palavras, descrevendo só o essencial da cena naquele instante. Vá direto ao ponto.
+- Descreva apenas o que mais importa (quem/o quê/onde, ação principal, mudança de cena ou texto visível relevante). NÃO detalhe demais.
+- Posicione cada segmento em uma PAUSA da fala (sem diálogo), informando o instante de início em milissegundos (start_ms).
+- A narração falada precisa caber na pausa: prefira frases bem curtas a descrições completas; não descreva por cima das falas.
+- Não repita o que é dito no áudio; complemente visualmente.
+- Presente do indicativo, verbos ativos; sem introduções, opiniões, "vídeo de", emojis ou frases redundantes.
+- Responda apenas com o JSON no formato especificado, em ` + language + `.`
 }
 
 // GetAudioTranscriptionPrompt retorna o prompt de transcrição de áudio no idioma especificado

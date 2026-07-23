@@ -8,7 +8,7 @@ ENV CGO_ENABLED=1
 RUN go build -ldflags="-s -w" -o /out/intelliwhats .
 
 FROM alpine:3.19
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata ffmpeg
 COPY --from=build /out/intelliwhats /usr/local/bin/intelliwhats
 RUN mkdir -p /app/login /app/temp
 WORKDIR /app

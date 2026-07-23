@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/types/events"
 	"google.golang.org/protobuf/proto"
@@ -39,6 +40,8 @@ func handleMessage(msg *events.Message) {
 		handleStickerMessage(ctx, msg)
 	} else if msg.Message.GetAudioMessage() != nil {
 		handleAudioMessage(ctx, msg)
+	} else if msg.Message.GetVideoMessage() != nil {
+		handleVideoMessage(ctx, msg)
 	} else {
 		handleTextMessage(ctx, msg)
 	}
@@ -218,4 +221,40 @@ func replyToMessage(ctx context.Context, msg *events.Message, text string) {
 	if err != nil {
 		log.Printf("Erro ao enviar resposta: %v", err)
 	}
+}
+
+// sendVideoReply faz upload e envia um vídeo (com audiodescrição) para o chat.
+func sendVideoReply(ctx context.Context, msg *events.Message, video *producedVideo) error {
+	uploaded, err := client.Upload(ctx, video.Data, whatsmeow.MediaVideo)
+	if err != nil {
+		return fmt.Errorf("upload do vídeo: %v", err)
+	}
+
+	videoMsg := &waE2E.VideoMessage{
+		URL:           proto.String(uploaded.URL),
+		DirectPath:    proto.String(uploaded.DirectPath),
+		MediaKey:      uploaded.MediaKey,
+		FileEncSHA256: uploaded.FileEncSHA256,
+		FileSHA256:    uploaded.FileSHA256,
+		FileLength:    proto.Uint64(uploaded.FileLength),
+		Mimetype:      proto.String("video/mp4"),
+	}
+
+	if video.Seconds > 0 {
+		videoMsg.Seconds = proto.Uint32(video.Seconds)
+	}
+	if video.Width > 0 {
+		videoMsg.Width = proto.Uint32(video.Width)
+	}
+	if video.Height > 0 {
+		videoMsg.Height = proto.Uint32(video.Height)
+	}
+	if len(video.Thumbnail) > 0 {
+		videoMsg.JPEGThumbnail = video.Thumbnail
+	}
+
+	_, err = client.SendMessage(ctx, msg.Info.Chat, &waE2E.Message{
+		VideoMessage: videoMsg,
+	})
+	return err
 }

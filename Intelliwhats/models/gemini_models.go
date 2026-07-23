@@ -22,6 +22,7 @@ type GeminiFile struct {
 	MimeType    string `json:"mimeType"`
 	SizeBytes   string `json:"sizeBytes"`
 	URI         string `json:"uri"`
+	State       string `json:"state"` // PROCESSING, ACTIVE ou FAILED (relevante para vídeo)
 }
 
 // GeminiSystemInstruction contém a instrução do sistema
@@ -99,4 +100,88 @@ type GeminiInlineData struct {
 // GeminiImageResponse representa a resposta da descrição de imagem
 type GeminiImageResponse struct {
 	Candidates []GeminiCandidate `json:"candidates"`
+}
+
+// ---- TTS (Text-to-Speech) ----
+
+// GeminiTTSRequest representa a requisição de síntese de voz
+type GeminiTTSRequest struct {
+	Contents         []GeminiContent    `json:"contents"`
+	GenerationConfig GeminiTTSGenConfig `json:"generationConfig"`
+}
+
+// GeminiTTSGenConfig configura a saída de áudio e a voz
+type GeminiTTSGenConfig struct {
+	ResponseModalities []string           `json:"responseModalities"`
+	SpeechConfig       GeminiSpeechConfig `json:"speechConfig"`
+}
+
+// GeminiSpeechConfig contém a configuração de voz
+type GeminiSpeechConfig struct {
+	VoiceConfig GeminiVoiceConfig `json:"voiceConfig"`
+}
+
+// GeminiVoiceConfig seleciona a voz pré-definida
+type GeminiVoiceConfig struct {
+	PrebuiltVoiceConfig GeminiPrebuiltVoice `json:"prebuiltVoiceConfig"`
+}
+
+// GeminiPrebuiltVoice identifica a voz por nome
+type GeminiPrebuiltVoice struct {
+	VoiceName string `json:"voiceName"`
+}
+
+// GeminiTTSResponse representa a resposta da síntese de voz
+type GeminiTTSResponse struct {
+	Candidates []GeminiTTSCandidate `json:"candidates"`
+}
+
+// GeminiTTSCandidate representa um candidato de resposta de áudio
+type GeminiTTSCandidate struct {
+	Content GeminiTTSContent `json:"content"`
+}
+
+// GeminiTTSContent contém as partes de áudio da resposta
+type GeminiTTSContent struct {
+	Parts []GeminiTTSPart `json:"parts"`
+}
+
+// GeminiTTSPart carrega o áudio inline (base64 PCM)
+type GeminiTTSPart struct {
+	InlineData *GeminiTTSInlineData `json:"inlineData,omitempty"`
+}
+
+// GeminiTTSInlineData contém o áudio PCM em base64 (ex.: audio/L16;rate=24000)
+type GeminiTTSInlineData struct {
+	MimeType string `json:"mimeType"`
+	Data     string `json:"data"`
+}
+
+// ---- Audiodescrição estruturada de vídeo (Fase 2) ----
+
+// ADSegment é um trecho de narração posicionado no tempo do vídeo (numa pausa).
+type ADSegment struct {
+	StartMs int    `json:"start_ms"`
+	Text    string `json:"text"`
+}
+
+// GeminiVideoADRequest solicita a audiodescrição em segmentos (JSON estruturado).
+type GeminiVideoADRequest struct {
+	SystemInstruction *GeminiSystemInstruction `json:"system_instruction,omitempty"`
+	Contents          []GeminiContent          `json:"contents"`
+	GenerationConfig  GeminiADGenConfig         `json:"generationConfig"`
+}
+
+// GeminiADGenConfig força a saída em JSON conforme um schema.
+type GeminiADGenConfig struct {
+	ResponseMIMEType string        `json:"responseMimeType"`
+	ResponseSchema   *GeminiSchema `json:"responseSchema,omitempty"`
+}
+
+// GeminiSchema descreve o formato de resposta esperado (subconjunto OpenAPI).
+type GeminiSchema struct {
+	Type       string                   `json:"type"`
+	Items      *GeminiSchema            `json:"items,omitempty"`
+	Properties map[string]*GeminiSchema `json:"properties,omitempty"`
+	Required   []string                 `json:"required,omitempty"`
 }

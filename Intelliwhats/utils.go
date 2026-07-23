@@ -48,3 +48,17 @@ func getAudioExtension(mimetype string) string {
 	}
 	return "mp3"
 }
+
+// getVideoExtension determina a extensão do arquivo de vídeo baseada no mimetype
+func getVideoExtension(mimetype string) string {
+	if strings.Contains(mimetype, "3gpp") {
+		return "3gp"
+	}
+	if strings.Contains(mimetype, "quicktime") {
+		return "mov"
+	}
+	if strings.Contains(mimetype, "webm") {
+		return "webm"
+	}
+	return "mp4"
+}

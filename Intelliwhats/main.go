@@ -16,6 +16,12 @@ func main() {
 		log.Fatalf("Erro ao criar diretório temporário: %v", err)
 	}
 
+	// ffmpeg/ffprobe são necessários para a audiodescrição de vídeo (as demais
+	// funcionalidades seguem funcionando sem eles).
+	if err := checkFFmpegAvailable(); err != nil {
+		log.Printf("AVISO: %v — a audiodescrição de vídeo ficará indisponível", err)
+	}
+
 	// Configurar banco de dados
 	dbPath := getenv("DB_PATH", DefaultDBPath)
 	container, database, err := setupDatabase(ctx, dbPath)

@@ -98,11 +98,12 @@ func GetVideoADSegmentsPrompt(language string) string {
 	return `Você é um audiodescritor profissional. Assista ao vídeo e produza uma audiodescrição em ` + language + ` para pessoas com deficiência visual, dividida em segmentos curtos.
 
 Regras:
-- Cada segmento deve ser MUITO BREVE: uma única frase curta, no máximo ~12 palavras, descrevendo só o essencial da cena naquele instante. Vá direto ao ponto.
-- Descreva apenas o que mais importa (quem/o quê/onde, ação principal, mudança de cena ou texto visível relevante). NÃO detalhe demais.
-- Posicione cada segmento em uma PAUSA da fala (sem diálogo), informando o instante de início em milissegundos (start_ms).
-- A narração falada precisa caber na pausa: prefira frases bem curtas a descrições completas; não descreva por cima das falas.
-- Não repita o que é dito no áudio; complemente visualmente.
+- COBERTURA TOTAL: o vídeo pode ter vários minutos. Distribua a audiodescrição do começo até o FIM, cobrindo toda a duração. É OBRIGATÓRIO descrever também o meio e o final — NUNCA concentre tudo nos primeiros segundos.
+- Ancore em EVENTOS: descreva mudanças de cena e mudanças visuais relevantes (nova pessoa ou objeto, ação importante, mudança de local, texto na tela). Mas NÃO deixe trechos longos sem nenhuma narração: se a cena ficar parada por muito tempo, descreva periodicamente o que está em quadro.
+- ESPAÇAMENTO: cada narração falada leva alguns segundos para ser dita, então deixe pelo menos ~5 segundos entre o início (start_ms) de um segmento e o próximo. NUNCA agrupe vários segmentos nos mesmos poucos segundos — se houver muitos eventos juntos, escolha apenas o mais importante.
+- Cada segmento deve ser BREVE: uma única frase curta, no máximo ~12 palavras, descrevendo o essencial daquele momento. Vá direto ao ponto.
+- Informe o instante de início de cada segmento em milissegundos (start_ms). Quando houver pausas na fala, prefira encaixar a narração nelas; mas pode narrar durante os diálogos quando o evento for importante (o áudio original é abaixado automaticamente enquanto a narração toca).
+- Não repita literalmente o que é dito no áudio; complemente com a informação visual.
 - Presente do indicativo, verbos ativos; sem introduções, opiniões, "vídeo de", emojis ou frases redundantes.
 - Responda apenas com o JSON no formato especificado, em ` + language + `.`
 }

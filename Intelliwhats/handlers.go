@@ -7,6 +7,7 @@ import (
 
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/proto/waE2E"
+	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
 	"google.golang.org/protobuf/proto"
 )
@@ -17,6 +18,10 @@ func eventHandler(evt interface{}) {
 	case *events.Message:
 		// Ignorar mensagens próprias
 		if v.Info.IsFromMe {
+			return
+		}
+		// Ignorar postagens de Status — bot funciona apenas em chats
+		if v.Info.Chat == types.StatusBroadcastJID {
 			return
 		}
 		go handleMessage(v)

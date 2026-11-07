@@ -1,10 +1,10 @@
 FROM golang:1.26-alpine AS build
 WORKDIR /src
-RUN apk add --no-cache git gcc musl-dev
+RUN apk add --no-cache git
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-ENV CGO_ENABLED=1
+ENV CGO_ENABLED=0
 RUN go build -ldflags="-s -w" -o /out/intelliwhats .
 
 FROM alpine:3.19

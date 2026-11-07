@@ -11,8 +11,8 @@ The Go module lives in `Intelliwhats/` (this directory). The **git repository ro
 ## Commands
 
 ```bash
-# Build (CGO required — go-sqlite3 needs a C compiler)
-CGO_ENABLED=1 go build -o intelliwhats .
+# Build (pure Go, no C compiler needed)
+CGO_ENABLED=0 go build -o intelliwhats .
 
 # Run locally (requires env vars set, see below)
 go build -o intelliwhats . && ./intelliwhats

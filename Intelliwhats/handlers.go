@@ -236,13 +236,14 @@ func sendVideoReply(ctx context.Context, msg *events.Message, video *producedVid
 	}
 
 	videoMsg := &waE2E.VideoMessage{
-		URL:           proto.String(uploaded.URL),
-		DirectPath:    proto.String(uploaded.DirectPath),
-		MediaKey:      uploaded.MediaKey,
-		FileEncSHA256: uploaded.FileEncSHA256,
-		FileSHA256:    uploaded.FileSHA256,
-		FileLength:    proto.Uint64(uploaded.FileLength),
-		Mimetype:      proto.String("video/mp4"),
+		URL:              proto.String(uploaded.URL),
+		DirectPath:       proto.String(uploaded.DirectPath),
+		MediaKey:         uploaded.MediaKey,
+		FileEncSHA256:    uploaded.FileEncSHA256,
+		FileSHA256:       uploaded.FileSHA256,
+		FileLength:       proto.Uint64(uploaded.FileLength),
+		StreamingSidecar: uploaded.StreamingSidecar,
+		Mimetype:         proto.String("video/mp4"),
 	}
 
 	if video.Seconds > 0 {
